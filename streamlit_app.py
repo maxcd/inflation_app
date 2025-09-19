@@ -159,21 +159,21 @@ def create_timeseries_overview_chart(df):
                 hovertemplate=f'%{{x}}<br>{label}: %{{y:.3f}}%<extra></extra>'
             ))
     
-    # fig.update_layout(
-    #     title="Evolution der Inflationserwartungen über Zeit",
-    #     xaxis_title="Zeit",
-    #     yaxis_title="Inflationserwartungen (% p.a.)",
-    #     yaxis=dict(range=y_range),
-    #     hovermode='x unified',
-    #     height=600,
-    #     legend=dict(
-    #         orientation="h",
-    #         yanchor="bottom",
-    #         y=1.02,
-    #         xanchor="right",
-    #         x=1
-    #     )
-    # )
+    fig.update_layout(
+        title="Evolution der Inflationserwartungen über Zeit",
+        xaxis_title="Zeit",
+        yaxis_title="Inflationserwartungen (% p.a.)",
+        yaxis=dict(range=y_range),
+        hovermode='x unified',
+        height=600,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
     
     return fig
 
