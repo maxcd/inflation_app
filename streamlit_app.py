@@ -6,63 +6,57 @@ import numpy as np
 from datetime import datetime
 import base64
 
-# App-Konfiguration
+# App configuration
 st.set_page_config(
-    page_title="Strukturkurve Europäischer Survey-Inflationserwartungen",
+    page_title="Term Structure of European Survey Inflation Expectations",
     page_icon="📈",
     layout="wide"
 )
 
-# Länder-Konfiguration
+# Country configuration
 COUNTRIES = {
-    'Deutschland': 'de',
-    'Spanien': 'es', 
-    'Eurozone': 'ez',
-    'Frankreich': 'fr',
-    'Italien': 'it',
-    'Niederlande': 'nl'
+    'Germany': 'de',
+    'Spain': 'es', 
+    'Euro Area': 'ez',
+    'France': 'fr',
+    'Italy': 'it',
+    'Netherlands': 'nl'
 }
 
 @st.cache_data
 def load_data(country_code):
-    """Lädt und bereitet die Daten für das gewählte Land vor"""
+    """Loads and prepares data for the selected country"""
     try:
-        # Pfad zur Excel-Datei
         file_path = f"data/{country_code}/FittedTermStructure.xlsx"
         
-        # Excel-Datei einlesen
         df = pd.read_excel(file_path)
         
-        # Spaltennamen bereinigen - Leerzeichen entfernen
         df.columns = [col.replace(' ', '') for col in df.columns]
 
-        # Alle numerischen Spalten auf 3 Nachkommastellen runden
         numeric_cols = df.select_dtypes(include=[np.number]).columns
         df[numeric_cols] = df[numeric_cols].round(3)
         
-        # Zeit-Spalte verarbeiten
         if 'Time' in df.columns:
             df['Time'] = pd.to_datetime(df['Time'])
         elif df.columns[0] not in ['pi_1q', 'pi_2q']:
             df = df.rename(columns={df.columns[0]: 'Time'})
             df['Time'] = pd.to_datetime(df['Time'])
         
-        # explizit nach datum (aufsteigend) sortieren
         df = df.sort_values('Time').reset_index(drop=True)
         
         return df
         
     except FileNotFoundError:
-        st.error(f"Datei nicht gefunden: {file_path}")
-        st.info("Verwende Beispiel-Daten für Demo-Zwecke")
+        st.error(f"File not found: {file_path}")
+        st.info("Using sample data for demo purposes")
         return load_sample_data()
     except Exception as e:
-        st.error(f"Fehler beim Laden der Daten: {str(e)}")
-        st.info("Verwende Beispiel-Daten für Demo-Zwecke")
+        st.error(f"Error loading data: {str(e)}")
+        st.info("Using sample data for demo purposes")
         return load_sample_data()
 
 def load_sample_data():
-    """Lädt Beispiel-Daten falls echte Daten nicht verfügbar"""
+    """Loads sample data if real data is not available"""
     quarters = []
     
     for year in range(1989, 2026):
@@ -98,7 +92,7 @@ def load_sample_data():
     return df
 
 def format_quarter(date):
-    """Formatiert Datum als YYYYQX"""
+    """Formats date as YYYYQX"""
     year = date.year
     month = date.month
     if month in [1, 2, 3]:
@@ -112,7 +106,7 @@ def format_quarter(date):
     return f"{year}Q{quarter}"
 
 def get_global_y_range(df):
-    """Berechnet globale Min/Max-Werte für einheitliche Skalierung"""
+    """Calculates global min/max values for consistent scaling"""
     horizons_cols = [col for col in df.columns if col.startswith('pi_')]
     all_values = []
     for col in horizons_cols:
@@ -126,24 +120,23 @@ def get_global_y_range(df):
         return [0, 5]
 
 def create_timeseries_overview_chart(df):
-    """Erstellt Zeitreihen-Plot für ausgewählte Inflationserwartungs-Horizonte"""
+    """Creates time series plot for selected inflation expectation horizons"""
     fig = go.Figure()
     
     y_range = get_global_y_range(df)
     
-    # Horizonte ohne Leerzeichen (da diese beim Laden entfernt wurden)
     selected_horizons = [
-    ('pi_1q', '1 Quartal', '#000080'),    # Dunkelblau
-    ('pi_2q', '2 Quartale', '#0000FF'),   # Blau
-    ('pi_3q', '3 Quartale', '#0080FF'),   # Hellblau
-    ('pi_4q', '4 Quartale', '#00FFFF'),   # Cyan
-    ('pi_6q', '6 Quartale', '#00FF80'),   # Grün-Cyan
-    ('pi_8q', '8 Quartale', '#00FF00'),   # Grün
-    ('pi_12q', '12 Quartale', '#80FF00'), # Gelbgrün
-    ('pi_16q', '16 Quartale', '#FFFF00'), # Gelb
-    ('pi_20q', '20 Quartale', '#FF8000'), # Orange
-    ('pi_30q', '30 Quartale', '#FF4000'), # Rot-Orange
-    ('pi_40q', '40 Quartale', '#FF0000')  # Rot
+    ('pi_1q', '1 Quarter', '#000080'),
+    ('pi_2q', '2 Quarters', '#0000FF'),
+    ('pi_3q', '3 Quarters', '#0080FF'),
+    ('pi_4q', '4 Quarters', '#00FFFF'),
+    ('pi_6q', '6 Quarters', '#00FF80'),
+    ('pi_8q', '8 Quarters', '#00FF00'),
+    ('pi_12q', '12 Quarters', '#80FF00'),
+    ('pi_16q', '16 Quarters', '#FFFF00'),
+    ('pi_20q', '20 Quarters', '#FF8000'),
+    ('pi_30q', '30 Quarters', '#FF4000'),
+    ('pi_40q', '40 Quarters', '#FF0000')
     ]
     
     available_cols = [col for col in df.columns if col.startswith('pi_')]
@@ -160,9 +153,9 @@ def create_timeseries_overview_chart(df):
             ))
     
     fig.update_layout(
-        title="Evolution der Inflationserwartungen über Zeit",
-        xaxis_title="Zeit",
-        yaxis_title="Inflationserwartungen (% p.a.)",
+        title="Evolution of Inflation Expectations Over Time",
+        xaxis_title="Time",
+        yaxis_title="Inflation Expectations (% p.a.)",
         yaxis=dict(range=y_range),
         hovermode='x unified',
         height=600,
@@ -178,7 +171,7 @@ def create_timeseries_overview_chart(df):
     return fig
 
 def prepare_curve_data(df):
-    """Bereitet Daten für Strukturkurven vor"""
+    """Prepares data for term structure curves"""
     horizons = [col for col in df.columns if col.startswith('pi_')]
     horizon_values = [int(col.split('_')[1][:-1]) for col in horizons]
     
@@ -195,7 +188,7 @@ def prepare_curve_data(df):
     return curves_data
 
 def create_comparison_chart(df, selected_dates, use_fixed_scale=True):
-    """Erstellt Vergleichschart für mehrere Zeitpunkte"""
+    """Creates comparison chart for multiple time points"""
     fig = go.Figure()
     
     horizons = [col for col in df.columns if col.startswith('pi_')]
@@ -218,9 +211,9 @@ def create_comparison_chart(df, selected_dates, use_fixed_scale=True):
         ))
     
     layout_kwargs = {
-        'title': "Vergleich der Inflationserwartungen-Strukturkurven",
-        'xaxis_title': "Horizont (Quartale)",
-        'yaxis_title': "Inflationserwartungen (% p.a.)",
+        'title': "Comparison of Inflation Expectation Term Structures",
+        'xaxis_title': "Horizon (Quarters)",
+        'yaxis_title': "Inflation Expectations (% p.a.)",
         'hovermode': 'x unified',
         'height': 500
     }
@@ -232,7 +225,7 @@ def create_comparison_chart(df, selected_dates, use_fixed_scale=True):
     return fig
 
 def create_evolution_chart(curves_data, selected_idx, df, use_fixed_scale=True):
-    """Evolution-Chart mit einer Strukturkurve"""
+    """Evolution chart with a single term structure curve"""
     fig = go.Figure()
     
     current_curve = curves_data[selected_idx]
@@ -241,16 +234,16 @@ def create_evolution_chart(curves_data, selected_idx, df, use_fixed_scale=True):
             x=current_curve['horizons'],
             y=current_curve['values'],
             mode='lines+markers',
-            name=f"Strukturkurve {current_curve['quarter_label']}",
+            name=f"Term Structure {current_curve['quarter_label']}",
             line=dict(color='darkblue', width=3),
             marker=dict(size=8, color='darkblue')
         )
     )
     
     layout_kwargs = {
-        'title': f"Strukturkurve - {current_curve['quarter_label']}",
-        'xaxis_title': "Horizont (Quartale)",
-        'yaxis_title': "Inflationserwartungen (% p.a.)",
+        'title': f"Term Structure - {current_curve['quarter_label']}",
+        'xaxis_title': "Horizon (Quarters)",
+        'yaxis_title': "Inflation Expectations (% p.a.)",
         'height': 500,
         'hovermode': 'x'
     }
@@ -262,60 +255,57 @@ def create_evolution_chart(curves_data, selected_idx, df, use_fixed_scale=True):
     return fig
 
 def download_data_as_csv(df):
-    """Erstellt Download-Link für CSV"""
+    """Creates download link for CSV"""
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="inflationserwartungen.csv">💾 Daten als CSV herunterladen</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="inflation_expectations.csv">💾 Download data as CSV</a>'
     return href
 
 def download_selected_data_as_csv(df, selected_dates):
-    """Erstellt Download-Link für nur die ausgewählten Quartale"""
-    # Filtere nur die ausgewählten Zeilen
+    """Creates download link for selected quarters only"""
     filtered_df = df[df['Time'].isin(selected_dates)].copy()
     
     csv = filtered_df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="ausgewaehlte_quartale.csv">💾 Chart-Daten als CSV herunterladen</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="selected_quarters.csv">💾 Download chart data as CSV</a>'
     return href
 
-# Hauptanwendung
+# Main application
 def main():
-    st.title("Strukturkurve Europäischer Survey-Inflationserwartungen")
+    st.title("Term Structure of European Survey Inflation Expectations")
     st.markdown("---")
     
     # Sidebar
-    st.sidebar.header("Einstellungen")
+    st.sidebar.header("Settings")
     selected_country = st.sidebar.selectbox(
-        "Land auswählen",
+        "Select country",
         list(COUNTRIES.keys()),
-        index=2,  # Eurozone als Default
-        help="Wählen Sie das Land für die Analyse"
+        index=2,  # Euro Area as default
+        help="Select the country for analysis"
     )
     
     country_code = COUNTRIES[selected_country]
     
-    # Daten laden
+    # Load data
     df = load_data(country_code)
     curves_data = prepare_curve_data(df)
     
     # Tabs
-    tab1, tab2, tab3 = st.tabs(["📈 Übersicht", "🔍 Strukturkurven Vergleich", "🎬 Evolution der Kurve"])
+    tab1, tab2, tab3 = st.tabs(["📈 Overview", "🔍 Term Structure Comparison", "🎬 Curve Evolution"])
     
     with tab1:
-        st.header("Gesamtübersicht der Strukturkurve")
+        st.header("Overview of the Term Structure")
         
-        # Chart
         fig_timeseries = create_timeseries_overview_chart(df)
         st.plotly_chart(fig_timeseries, use_container_width=True)
         
-        # Downloads UNTER dem Chart
         col1, col2, col3 = st.columns([1, 1, 1])
         with col1:
             st.markdown(download_data_as_csv(df), unsafe_allow_html=True)
         
     
     with tab2:
-        st.header("Vergleich mehrerer Zeitpunkte")
+        st.header("Comparison of Multiple Time Points")
         
         quarter_options = [(row['Time'], format_quarter(row['Time'])) for _, row in df.iterrows()]
         quarter_labels = [label for _, label in quarter_options]
@@ -323,16 +313,16 @@ def main():
         default_selection = quarter_labels[-3:] if len(quarter_labels) >= 3 else quarter_labels
         
         selected_quarter_labels = st.multiselect(
-            "Wählen Sie Quartale zum Vergleichen:",
+            "Select quarters to compare:",
             options=quarter_labels,
             default=default_selection,
-            help="Wählen Sie bis zu 8 Quartale für den Vergleich"
+            help="Select up to 8 quarters for comparison"
         )
         
         use_fixed_y_axis = st.checkbox(
-            "Feste Y-Achse verwenden",
+            "Use fixed Y-axis",
             value=False,
-            help="Wenn aktiviert, wird dieselbe Y-Achsen-Skalierung wie in der Übersicht verwendet"
+            help="If enabled, uses the same Y-axis scale as the overview chart"
         )
         
         if selected_quarter_labels:
@@ -346,38 +336,29 @@ def main():
             fig1 = create_comparison_chart(df, selected_dates, use_fixed_y_axis)
             st.plotly_chart(fig1, use_container_width=True)
         
-             # Downloads UNTER dem Chart
             col1, col2, col3 = st.columns([1, 1, 1])
             with col1:
                 st.markdown(download_selected_data_as_csv(df, selected_dates), unsafe_allow_html=True)
     
     with tab3:
-        st.header("Evolution der Strukturkurve")
+        st.header("Evolution of the Term Structure")
         
         quarter_labels_dropdown = [curves_data[i]['quarter_label'] for i in range(len(curves_data))]
-        
-        #selected_quarter_label = st.selectbox(
-        #    "Wählen Sie ein Quartal:",
-        #    options=quarter_labels_dropdown,
-        #    index=len(quarter_labels_dropdown)-1,
-        #    help="Wählen Sie das Quartal für die Strukturkurve"
-        #)
 
         selected_quarter_label = st.select_slider(
-        "Wählen Sie ein Quartal:",
-        options=quarter_labels_dropdown,
-        value=quarter_labels_dropdown[-1],
-        help="Verwenden Sie den Slider, um durch die Quartale zu navigieren"
+            "Select a quarter:",
+            options=quarter_labels_dropdown,
+            value=quarter_labels_dropdown[-1],
+            help="Use the slider to navigate through quarters"
         )
 
-        # Index für das ausgewählte Quartal finden
         selected_quarter_idx = quarter_labels_dropdown.index(selected_quarter_label)
         
         use_fixed_y_axis_evolution = st.checkbox(
-            "Feste Y-Achse verwenden",
+            "Use fixed Y-axis",
             value=False,
             key="fixed_y_evolution",
-            help="Wenn aktiviert, wird dieselbe Y-Achsen-Skalierung wie in der Übersicht verwendet"
+            help="If enabled, uses the same Y-axis scale as the overview chart"
         )
         
         selected_quarter_idx = quarter_labels_dropdown.index(selected_quarter_label)
@@ -385,20 +366,18 @@ def main():
         fig2 = create_evolution_chart(curves_data, selected_quarter_idx, df, use_fixed_y_axis_evolution)
         st.plotly_chart(fig2, use_container_width=True)
         
-        
-        # Details zum ausgewählten Quartal - nur Metriken
-        st.subheader("Details zum ausgewählten Quartal")
+        st.subheader("Details for Selected Quarter")
         current_curve = curves_data[selected_quarter_idx]
         
         col1, col2, col3 = st.columns(3)
         values = current_curve['values']
         
         with col1:
-            st.metric("Kurzfristig (1Q)", f"{values[0]:.3f}%")
+            st.metric("Short-term (1Q)", f"{values[0]:.3f}%")
         with col2:
-            st.metric("Mittelfristig (8Q)", f"{values[7]:.3f}%" if len(values) > 7 else f"{values[-1]:.3f}%")
+            st.metric("Medium-term (8Q)", f"{values[7]:.3f}%" if len(values) > 7 else f"{values[-1]:.3f}%")
         with col3:
-            st.metric("Langfristig (20Q)", f"{values[19]:.3f}%" if len(values) > 19 else f"{values[-1]:.3f}%")
+            st.metric("Long-term (20Q)", f"{values[19]:.3f}%" if len(values) > 19 else f"{values[-1]:.3f}%")
 
 if __name__ == "__main__":
     main()
