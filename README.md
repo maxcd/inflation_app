@@ -18,7 +18,7 @@ The dashboard has three views:
 
 ## Data & Methodology
 
-The underlying data is based on survey expectations from professional forecasters. For a full description of the data construction and fitting methodology, please refer to the working paper:
+The underlying data is based on survey expectations from professional forecasters of CoConsensus Economics. The term structure is estimated with a Bayesian version of the model by Aruoba (2020). The original data are not shared here, only the model output. For a full description of the data construction and fitting methodology, please refer to the working paper:
 
 > *[Working paper title]* — [Authors], [Year]. [[Link]]()
 
@@ -45,6 +45,6 @@ data/
 └── nl/FittedTermStructure.xlsx   # Netherlands
 ```
 
-## Contact
+## Literature
 
-For questions or feedback, please open an issue or reach out via [your contact details].
+- Borağan Aruoba, S. (2020). **Term structures of inflation expectations and real interest rates**. Journal of Business & Economic Statistics 38.3 : 542-553.
