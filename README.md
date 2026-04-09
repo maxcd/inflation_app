@@ -47,4 +47,4 @@ data/
 
 ## Literature
 
-- Borağan Aruoba, S. (2020). **Term structures of inflation expectations and real interest rates**. Journal of Business & Economic Statistics 38.3 : 542-553.
+- Borağan Aruoba, S. (2020). *Term structures of inflation expectations and real interest rates*. Journal of Business & Economic Statistics 38(3): 542-553.
