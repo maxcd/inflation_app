@@ -1,23 +1,50 @@
-# Term Structure of European Inflation Expectations of Professionals
+# Term Structure of European Survey Inflation Expectations
 
+An interactive dashboard for exploring the fitted term structure of professional inflation expectations across the Euro Area and major European economies.
 
-Description of the app ...
+## Live App
 
-## Demo App
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://inflation-expectations-ea.streamlit.app/)
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://app-starter-kit.streamlit.app/)
+## Overview
 
-## GitHub Codespaces
+This app visualizes the estimated term structure of inflation expectations derived from professional forecaster surveys. It covers six economies — the **Euro Area, Germany, France, Italy, Spain, and the Netherlands** — with quarterly data going back to 1989.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/app-starter-kit?quickstart=1)
+The dashboard has three views:
 
-## Section Heading
+- **Overview** — time series of inflation expectations across all forecast horizons (1Q to 40Q ahead)
+- **Term Structure Comparison** — compare the shape of the curve across multiple quarters side by side
+- **Curve Evolution** — step through individual quarters to see how the term structure has shifted over time
 
-This is filler text, please replace this with text for this section.
+## Data & Methodology
 
-## Further Reading
+The underlying data is based on survey expectations from professional forecasters. For a full description of the data construction and fitting methodology, please refer to the working paper:
 
-This is filler text, please replace this with a explanatory text about further relevant resources for this repo
-- Resource 1
-- Resource 2
-- Resource 3
+> *[Working paper title]* — [Authors], [Year]. [[Link]]()
+
+## Local Development
+
+To run the app locally:
+
+```bash
+git clone https://github.com/[your-username]/[your-repo].git
+cd [your-repo]
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+The app expects country-level data files at the following paths:
+
+```
+data/
+├── de/FittedTermStructure.xlsx   # Germany
+├── es/FittedTermStructure.xlsx   # Spain
+├── ez/FittedTermStructure.xlsx   # Euro Area
+├── fr/FittedTermStructure.xlsx   # France
+├── it/FittedTermStructure.xlsx   # Italy
+└── nl/FittedTermStructure.xlsx   # Netherlands
+```
+
+## Contact
+
+For questions or feedback, please open an issue or reach out via [your contact details].
