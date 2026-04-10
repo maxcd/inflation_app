@@ -6,6 +6,12 @@ import numpy as np
 from datetime import datetime
 import base64
 
+
+st.markdown("""
+<script data-goatcounter="https://maxcd.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+""", unsafe_allow_html=True)
+
 # App configuration
 st.set_page_config(
     page_title="Term Structure of European Survey Inflation Expectations",
