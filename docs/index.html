@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Term Structure of European Inflation Expectations</title>
+<meta name="description" content="Interactive term structures of survey-based inflation expectations for the Euro Area, Germany, France, Italy, Spain and the Netherlands, 1989–2025.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js"></script>
+<script data-goatcounter="https://maxcd.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+  :root{
+    --bg:#f7f7f4; --panel:#ffffff; --ink:#1b1f24; --muted:#5d6670; --line:#e3e3dd;
+    --accent:#1d3f8f; --accent-soft:#e8edf8; --pos:#a33a2a; --neg:#2a6a3f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  header{padding:44px 0 20px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 10px}
+  h1{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:clamp(26px,4vw,38px);line-height:1.15;margin:0 0 12px;letter-spacing:-.01em}
+  .lede{color:var(--muted);max-width:720px;margin:0}
+  .controls{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between;padding:18px 0 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5}
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .seg button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 13px;border-radius:999px;cursor:pointer;transition:background .15s,border-color .15s}
+  .seg button:hover{border-color:#b9bec6}
+  .seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  nav.tabs{display:flex;gap:4px}
+  nav.tabs button{font:inherit;font-size:14px;font-weight:500;border:0;background:none;color:var(--muted);padding:8px 12px;border-radius:8px;cursor:pointer}
+  nav.tabs button:hover{color:var(--ink);background:#ecece6}
+  nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
+  main{padding:24px 0 40px}
+  section[hidden]{display:none}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 12px}
+  .card + .card{margin-top:18px}
+  .card h2{font-size:17px;margin:0 0 4px;font-weight:600}
+  .card p.sub{margin:0 0 10px;color:var(--muted);font-size:14px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:14px 0 4px}
+  .toolbar label{display:inline-flex;gap:7px;align-items:center;font-size:14px;color:var(--muted);cursor:pointer}
+  select,.btn{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 10px;border-radius:8px}
+  .btn{cursor:pointer;display:inline-flex;gap:6px;align-items:center;text-decoration:none}
+  .btn:hover{border-color:#b9bec6}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.1)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-variant-numeric:tabular-nums;padding:4px 6px 4px 10px;border-radius:999px;background:#f2f2ee;border:1px solid var(--line)}
+  .chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .chip button{border:0;background:none;cursor:pointer;color:var(--muted);font-size:15px;line-height:1;padding:0 3px}
+  .chip button:hover{color:var(--ink)}
+  .spacer{flex:1}
+  .plot{width:100%}
+  .player{display:flex;align-items:center;gap:14px;margin:6px 0 2px}
+  .player .qlabel{font-family:"Source Serif 4",Georgia,serif;font-size:28px;font-weight:600;min-width:96px;font-variant-numeric:tabular-nums}
+  .player input[type=range]{flex:1;accent-color:var(--accent);height:28px}
+  .play{width:40px;height:40px;border-radius:50%;border:0;background:var(--accent);color:#fff;cursor:pointer;display:grid;place-items:center;flex:none}
+  .play:hover{filter:brightness(1.12)}
+  .play svg{width:16px;height:16px;fill:currentColor}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 14px}
+  .stat{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  .stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .stat .v{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+  .stat .d{font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .stat .d.up{color:var(--pos)} .stat .d.down{color:var(--neg)}
+  .hint{font-size:12.5px;color:var(--muted)}
+  footer{border-top:1px solid var(--line);padding:26px 0 48px;color:var(--muted);font-size:14px}
+  footer h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink);margin:0 0 6px}
+  footer .cols{display:grid;grid-template-columns:2fr 1fr;gap:28px}
+  footer a{color:var(--accent)}
+  kbd{font:12px ui-monospace,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px;background:#fff}
+  @media (max-width:720px){
+    .wrap{padding:0 16px}
+    header{padding-top:28px}
+    .controls{position:static}
+    .card{padding:16px 12px 8px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    footer .cols{grid-template-columns:1fr}
+    .player .qlabel{font-size:22px;min-width:76px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Research dashboard</p>
+    <h1>Term Structure of European Survey Inflation Expectations</h1>
+    <p class="lede">Fitted term structures of professional forecasters’ inflation expectations from 1 to 40 quarters ahead, for the Euro Area and five member economies, estimated with a Bayesian version of the Aruoba (2020) model.</p>
+  </header>
+
+  <div class="controls">
+    <div class="seg" id="countries" role="group" aria-label="Country"></div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="overview">Overview</button>
+      <button role="tab" data-tab="compare">Compare quarters</button>
+      <button role="tab" data-tab="evolution">Curve evolution</button>
+    </nav>
+  </div>
+
+  <main>
+    <section id="tab-overview">
+      <div class="card">
+        <h2>Expectations by horizon over time</h2>
+        <p class="sub">Selected horizons, % per year. Click legend entries to hide or isolate horizons; drag to zoom.</p>
+        <div id="chart-overview" class="plot" style="height:560px"></div>
+        <div class="toolbar">
+          <span class="hint" id="coverage"></span>
+          <span class="spacer"></span>
+          <button class="btn" id="dl-all">↓ Download full data (CSV)</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-compare" hidden>
+      <div class="card">
+        <h2>Compare term structures across quarters</h2>
+        <p class="sub">Pick up to 8 quarters to overlay their curves.</p>
+        <div class="toolbar">
+          <select id="q-select" aria-label="Quarter to add"></select>
+          <button class="btn primary" id="q-add">Add</button>
+          <button class="btn" id="preset-latest">Latest 3</button>
+          <button class="btn" id="preset-episodes">Key episodes</button>
+          <button class="btn" id="q-clear">Clear</button>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div id="chart-compare" class="plot" style="height:480px"></div>
+        <div class="toolbar">
+          <label><input type="checkbox" id="fixed-compare"> Fixed y-axis (full-sample range)</label>
+          <span class="spacer"></span>
+          <button class="btn" id="dl-sel">↓ Download selected quarters (CSV)</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-evolution" hidden>
+      <div class="card">
+        <h2>How the curve moves through time</h2>
+        <p class="sub">Press play, drag the slider, or use <kbd>←</kbd> <kbd>→</kbd>. Faded lines show the preceding quarters.</p>
+        <div class="player">
+          <button class="play" id="play" aria-label="Play"><svg viewBox="0 0 16 16" id="play-icon"><path d="M4 2.5v11l9-5.5z"/></svg></button>
+          <div class="qlabel" id="q-label">—</div>
+          <input type="range" id="slider" min="0" max="0" value="0" aria-label="Quarter">
+        </div>
+        <div class="toolbar" style="margin-top:2px">
+          <label>Speed
+            <select id="speed"><option value="400">Slow</option><option value="180" selected>Normal</option><option value="70">Fast</option></select>
+          </label>
+          <label><input type="checkbox" id="trail" checked> Show trail</label>
+          <label><input type="checkbox" id="fixed-evo" checked> Fixed y-axis</label>
+        </div>
+        <div id="chart-evo" class="plot" style="height:430px"></div>
+        <div class="stats" id="stats"></div>
+      </div>
+      <div class="card">
+        <h2>Where are we in the sample?</h2>
+        <p class="sub">Short (1Q) and long (40Q) end over time. Click anywhere on the chart to jump to that quarter.</p>
+        <div id="chart-context" class="plot" style="height:230px"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="cols">
+      <div>
+        <h3>Data &amp; methodology</h3>
+        <p>Survey data come from the ECB Survey of Professional Forecasters and Consensus Economics. The term structure is estimated with a Bayesian version of the model of Aruoba (2020). Only model output is published here, not the underlying survey data.</p>
+        <p>Borağan Aruoba, S. (2020). Term structures of inflation expectations and real interest rates. <em>Journal of Business &amp; Economic Statistics</em> 38(3): 542–553.</p>
+      </div>
+      <div>
+        <h3>Source</h3>
+        <p><a href="https://github.com/maxcd/inflation_app">github.com/maxcd/inflation_app</a></p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const COUNTRIES = [["ez","Euro Area"],["de","Germany"],["fr","France"],["it","Italy"],["es","Spain"],["nl","Netherlands"]];
+  const OVERVIEW_H = [1,2,3,4,6,8,12,16,20,30,40];
+  // Sequential ramp (plasma, truncated so the long end stays readable on white)
+  const RAMP = ["#0d0887","#41049d","#6a00a8","#8f0da4","#b12a90","#cc4778","#e16462","#f2844b","#f89540","#fca636","#e8a21c"];
+  const CAT = ["#1d3f8f","#d1495b","#2a9d8f","#e9a03b","#7b4fa0","#4a4a4a","#56b4e9","#8c6d31"];
+  const FONT = {family:"Inter, system-ui, sans-serif", size:13, color:"#1b1f24"};
+  const CONFIG = {displaylogo:false, responsive:true, modeBarButtonsToRemove:["lasso2d","select2d","autoScale2d","toggleSpikelines"]};
+  const baseLayout = (extra={}) => Object.assign({
+    font:FONT, paper_bgcolor:"rgba(0,0,0,0)", plot_bgcolor:"rgba(0,0,0,0)",
+    margin:{l:56,r:16,t:16,b:48},
+    xaxis:{gridcolor:"#eeeeea", zeroline:false, linecolor:"#cfcfc8", ticks:"outside", tickcolor:"#cfcfc8"},
+    yaxis:{gridcolor:"#eeeeea", zeroline:false, ticksuffix:"%", title:{text:"% p.a.", standoff:8}},
+    hoverlabel:{font:{family:FONT.family, size:12}, bgcolor:"#fff", bordercolor:"#cfcfc8"},
+    legend:{orientation:"h", y:1.02, yanchor:"bottom", x:0, font:{size:12}},
+  }, extra);
+  const targetShape = {type:"line", xref:"paper", x0:0, x1:1, y0:2, y1:2, line:{color:"#9aa1a9", width:1, dash:"dot"}, layer:"below"};
+  const targetLabel = {xref:"paper", x:1, y:2, text:"2% target", showarrow:false, xanchor:"right", yanchor:"bottom", font:{size:11, color:"#7d858e"}};
+
+  const cache = {};
+  const state = {country:"ez", tab:"overview", compare:[], idx:0, playing:false, timer:null};
+  let D = null;
+
+  // ---------- helpers
+  const $ = id => document.getElementById(id);
+  const col = h => D.horizons.indexOf(h);
+  const series = h => D.values.map(r => r[col(h)]);
+  const yRange = () => {
+    let lo=Infinity, hi=-Infinity;
+    for (const r of D.values) for (const v of r) if (v!=null){ if(v<lo)lo=v; if(v>hi)hi=v; }
+    return [Math.floor((lo-0.2)*2)/2, Math.ceil((hi+0.2)*2)/2];
+  };
+  const fmt = v => v==null ? "–" : v.toFixed(2)+"%";
+  const loadCountry = async c => cache[c] || (cache[c] = await (await fetch(`data/${c}.json`)).json());
+
+  function downloadCSV(rows, name){
+    const head = ["Time", ...D.horizons.map(h=>`pi_${h}q`)].join(",");
+    const body = rows.map(i => [D.dates[i], ...D.values[i].map(v=>v==null?"":v)].join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([head+"\n"+body+"\n"], {type:"text/csv"}));
+    const a = Object.assign(document.createElement("a"), {href:url, download:name});
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  }
+
+  // ---------- overview
+  function drawOverview(){
+    const traces = OVERVIEW_H.filter(h=>col(h)>=0).map((h,i)=>({
+      x:D.dates, y:series(h), type:"scatter", mode:"lines", name: h===1?"1Q":`${h}Q`,
+      line:{color:RAMP[i], width: (h===1||h===40)?2.4:1.6},
+      hovertemplate:`${h}Q: %{y:.2f}%<extra></extra>`
+    }));
+    Plotly.react("chart-overview", traces, baseLayout({
+      hovermode:"x unified", xaxis:{...baseLayout().xaxis, type:"date", hoverformat:"%Y Q%q"},
+      yaxis:{...baseLayout().yaxis, range:yRange()},
+      shapes:[targetShape], annotations:[targetLabel],
+      legend:{...baseLayout().legend, title:{text:"Horizon ", font:{size:12,color:"#5d6670"}}}
+    }), CONFIG);
+    $("coverage").textContent = `${D.country}: ${D.quarters[0]} – ${D.quarters.at(-1)} · ${D.quarters.length} quarters`;
+  }
+
+  // ---------- compare
+  function fillSelect(){
+    $("q-select").innerHTML = D.quarters.map((q,i)=>`<option value="${i}">${q}</option>`).reverse().join("");
+  }
+  function quarterIndex(q){ return D.quarters.indexOf(q); }
+  function setCompare(qs){ state.compare = qs.filter(q=>quarterIndex(q)>=0).slice(0,8); drawCompare(); }
+  function drawCompare(){
+    const chips = $("chips");
+    chips.innerHTML = state.compare.map((q,i)=>`<span class="chip"><i style="background:${CAT[i]}"></i>${q}<button aria-label="Remove ${q}" data-q="${q}">×</button></span>`).join("");
+    const traces = state.compare.map((q,i)=>({
+      x:D.horizons, y:D.values[quarterIndex(q)], type:"scatter", mode:"lines+markers", name:q,
+      line:{color:CAT[i], width:2.4}, marker:{size:4.5},
+      hovertemplate:`${q}: %{y:.2f}%<extra></extra>`
+    }));
+    Plotly.react("chart-compare", traces, baseLayout({
+      hovermode:"x unified",
+      xaxis:{...baseLayout().xaxis, title:{text:"Horizon (quarters ahead)"}, range:[0,41], dtick:4, hoverformat:"d"},
+      yaxis:{...baseLayout().yaxis, ...( $("fixed-compare").checked ? {range:yRange()} : {autorange:true})},
+      shapes:[targetShape], annotations: state.compare.length ? [targetLabel] : [{text:"Add a quarter above to start", xref:"paper", yref:"paper", x:.5, y:.5, showarrow:false, font:{color:"#7d858e"}}]
+    }), CONFIG);
+  }
+
+  // ---------- evolution
+  function drawEvolution(){
+    const i = state.idx, n = D.quarters.length;
+    const traces = [];
+    if ($("trail").checked){
+      for (let k=6; k>=1; k--){
+        if (i-k < 0) continue;
+        traces.push({x:D.horizons, y:D.values[i-k], type:"scatter", mode:"lines", hoverinfo:"skip", showlegend:false,
+          line:{color:`rgba(29,63,143,${0.05+0.06*(7-k)})`, width:1.5}});
+      }
+    }
+    traces.push({x:D.horizons, y:D.values[i], type:"scatter", mode:"lines+markers", name:D.quarters[i], showlegend:false,
+      line:{color:"#1d3f8f", width:3.2}, marker:{size:5, color:"#1d3f8f"},
+      hovertemplate:`%{x}Q ahead: %{y:.2f}%<extra>${D.quarters[i]}</extra>`});
+    Plotly.react("chart-evo", traces, baseLayout({
+      hovermode:"closest",
+      xaxis:{...baseLayout().xaxis, title:{text:"Horizon (quarters ahead)"}, range:[0,41], dtick:4},
+      yaxis:{...baseLayout().yaxis, ...( $("fixed-evo").checked ? {range:yRange()} : {autorange:true})},
+      shapes:[targetShape], annotations:[targetLabel], transition:{duration:0}
+    }), CONFIG);
+
+    $("q-label").textContent = D.quarters[i];
+    $("slider").value = i;
+    const stat = (label,h) => {
+      const c = col(h), v = D.values[i][c], p = i>0 ? D.values[i-1][c] : null;
+      const d = (v!=null && p!=null) ? v-p : null;
+      const cls = d==null ? "" : d>0.005 ? "up" : d<-0.005 ? "down" : "";
+      const ds = d==null ? "&nbsp;" : `${d>=0?"+":"−"}${Math.abs(d).toFixed(2)} pp vs. ${D.quarters[i-1]}`;
+      return `<div class="stat"><div class="k">${label}</div><div class="v">${fmt(v)}</div><div class="d ${cls}">${ds}</div></div>`;
+    };
+    $("stats").innerHTML = stat("Short-term · 1Q",1)+stat("Medium-term · 8Q",8)+stat("5 years · 20Q",20)+stat("10 years · 40Q",40);
+    Plotly.relayout("chart-context", {"shapes[0].x0":D.dates[i], "shapes[0].x1":D.dates[i]});
+  }
+  function drawContext(){
+    const traces = [
+      {x:D.dates, y:series(1), type:"scatter", mode:"lines", name:"1Q", line:{color:RAMP[0], width:1.8}, hovertemplate:"1Q: %{y:.2f}%<extra></extra>"},
+      {x:D.dates, y:series(40), type:"scatter", mode:"lines", name:"40Q", line:{color:RAMP[10], width:1.8}, hovertemplate:"40Q: %{y:.2f}%<extra></extra>"}
+    ];
+    Plotly.react("chart-context", traces, baseLayout({
+      hovermode:"x unified", margin:{l:56,r:16,t:8,b:32},
+      xaxis:{...baseLayout().xaxis, type:"date", hoverformat:"%Y Q%q"},
+      yaxis:{...baseLayout().yaxis, title:null},
+      legend:{orientation:"h", x:1, xanchor:"right", y:1, yanchor:"top", bgcolor:"rgba(255,255,255,.8)"},
+      shapes:[{type:"line", xref:"x", yref:"paper", x0:D.dates[state.idx], x1:D.dates[state.idx], y0:0, y1:1, line:{color:"#1d3f8f", width:2}}]
+    }), {...CONFIG, displayModeBar:false});
+  }
+  function setIdx(i){ state.idx = Math.max(0, Math.min(D.quarters.length-1, i)); drawEvolution(); }
+  function stop(){ state.playing=false; clearInterval(state.timer); $("play-icon").innerHTML='<path d="M4 2.5v11l9-5.5z"/>'; $("play").setAttribute("aria-label","Play"); }
+  function play(){
+    if (state.idx >= D.quarters.length-1) setIdx(0);
+    state.playing=true; $("play-icon").innerHTML='<path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/>'; $("play").setAttribute("aria-label","Pause");
+    state.timer = setInterval(()=>{ if (state.idx >= D.quarters.length-1) return stop(); setIdx(state.idx+1); }, +$("speed").value);
+  }
+
+  // ---------- tabs / country / routing
+  function showTab(t){
+    stop();
+    state.tab = t;
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t));
+    for (const s of ["overview","compare","evolution"]) $("tab-"+s).hidden = s!==t;
+    render();
+    writeHash();
+  }
+  function render(){
+    if (!D) return;
+    if (state.tab==="overview") drawOverview();
+    if (state.tab==="compare") drawCompare();
+    if (state.tab==="evolution"){ drawContext(); drawEvolution(); }
+    window.dispatchEvent(new Event("resize"));
+  }
+  async function setCountry(c){
+    stop();
+    const prevQ = D ? D.quarters[state.idx] : null;
+    state.country = c;
+    document.querySelectorAll("#countries button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.c===c));
+    D = await loadCountry(c);
+    fillSelect();
+    const kept = state.compare.filter(q=>quarterIndex(q)>=0);
+    state.compare = kept.length ? kept : D.quarters.slice(-3);
+    $("slider").max = D.quarters.length-1;
+    state.idx = prevQ && quarterIndex(prevQ)>=0 ? quarterIndex(prevQ) : D.quarters.length-1;
+    render(); writeHash();
+  }
+  function writeHash(){ history.replaceState(null, "", `#${state.country}/${state.tab}`); }
+
+  // ---------- wiring
+  $("countries").innerHTML = COUNTRIES.map(([c,n])=>`<button data-c="${c}">${n}</button>`).join("");
+  $("countries").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) setCountry(b.dataset.c); });
+  document.querySelector("nav.tabs").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) showTab(b.dataset.tab); });
+  $("dl-all").onclick = () => downloadCSV(D.quarters.map((_,i)=>i), `inflation_expectations_${state.country}.csv`);
+  $("dl-sel").onclick = () => downloadCSV(state.compare.map(quarterIndex).sort((a,b)=>a-b), `inflation_expectations_${state.country}_selected.csv`);
+  $("q-add").onclick = () => { const q = D.quarters[+$("q-select").value]; if (!state.compare.includes(q) && state.compare.length<8) setCompare([...state.compare, q]); };
+  $("q-clear").onclick = () => setCompare([]);
+  $("preset-latest").onclick = () => setCompare(D.quarters.slice(-3));
+  $("preset-episodes").onclick = () => setCompare(["2008Q3","2014Q4","2020Q2","2022Q3",D.quarters.at(-1)]);
+  $("chips").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) setCompare(state.compare.filter(q=>q!==b.dataset.q)); });
+  $("fixed-compare").onchange = drawCompare;
+  $("slider").addEventListener("input", e=>{ stop(); setIdx(+e.target.value); });
+  $("play").onclick = () => state.playing ? stop() : play();
+  $("speed").onchange = () => { if (state.playing){ stop(); play(); } };
+  $("trail").onchange = drawEvolution;
+  $("fixed-evo").onchange = drawEvolution;
+  document.addEventListener("keydown", e=>{
+    if (state.tab!=="evolution" || ["INPUT","SELECT"].includes(e.target.tagName) && e.target.type!=="range") return;
+    if (e.key==="ArrowRight"){ e.preventDefault(); stop(); setIdx(state.idx+1); }
+    if (e.key==="ArrowLeft"){ e.preventDefault(); stop(); setIdx(state.idx-1); }
+    if (e.key===" " && e.target.tagName!=="BUTTON"){ e.preventDefault(); state.playing ? stop() : play(); }
+  });
+  $("chart-context").addEventListener("click", e=>{
+    const gd = $("chart-context"), xa = gd._fullLayout && gd._fullLayout.xaxis;
+    if (!xa) return;
+    const px = e.clientX - gd.getBoundingClientRect().left - gd._fullLayout._size.l;
+    const t = xa.p2d(px); if (t==null) return;
+    const ms = new Date(t).getTime();
+    let best=0, bd=Infinity; D.dates.forEach((d,i)=>{ const dd=Math.abs(new Date(d).getTime()-ms); if(dd<bd){bd=dd;best=i;} });
+    stop(); setIdx(best);
+  });
+
+  function fromHash(){
+    const [hc, ht] = location.hash.slice(1).split("/");
+    state.tab = ["overview","compare","evolution"].includes(ht) ? ht : "overview";
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===state.tab));
+    for (const s of ["overview","compare","evolution"]) $("tab-"+s).hidden = s!==state.tab;
+    setCountry(COUNTRIES.some(([c])=>c===hc) ? hc : "ez");
+  }
+  window.addEventListener("hashchange", fromHash);
+  fromHash();
+})();
+</script>
+</body>
+</html>

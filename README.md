@@ -20,6 +20,22 @@ The dashboard has three views:
 
 The underlying data is based on the ECBs Survey of Professional Forecasters and from of Consensus Economics. The term structure is estimated with a Bayesian version of the model by Aruoba (2020). The original data are not shared here, only the model output. 
 
+## Static site (GitHub Pages)
+
+A static version of the dashboard lives in `docs/` and runs entirely in the browser (Plotly.js), so it never needs to be woken up.
+
+- `docs/index.html`: the page
+- `docs/data/<cc>.json`: model output, generated from the Excel files
+
+After re-estimating the model, regenerate the JSON and push:
+
+```bash
+python scripts/build_site_data.py
+```
+
+To publish, go to GitHub → Settings → Pages → *Deploy from a branch* → `main` / `/docs`.
+To preview locally: `python -m http.server -d docs` and open http://localhost:8000.
+
 ## Local Development
 
 To run the app locally:
