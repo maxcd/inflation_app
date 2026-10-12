@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.35.2/plotly.min.js"></script>
+<script src="plotly-2.35.2.min.js"></script>
 <script data-goatcounter="https://maxcd.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>
   :root{
@@ -296,10 +296,10 @@
       {x:D.dates, y:series(40), type:"scatter", mode:"lines", name:"40Q", line:{color:RAMP[10], width:1.8}, hovertemplate:"40Q: %{y:.2f}%<extra></extra>"}
     ];
     Plotly.react("chart-context", traces, baseLayout({
-      hovermode:"x unified", margin:{l:56,r:16,t:8,b:32},
+      hovermode:"x unified", margin:{l:56,r:16,t:28,b:32},
       xaxis:{...baseLayout().xaxis, type:"date", hoverformat:"%Y Q%q"},
       yaxis:{...baseLayout().yaxis, title:null},
-      legend:{orientation:"h", x:1, xanchor:"right", y:1, yanchor:"top", bgcolor:"rgba(255,255,255,.8)"},
+      legend:{orientation:"h", x:1, xanchor:"right", y:1.02, yanchor:"bottom"},
       shapes:[{type:"line", xref:"x", yref:"paper", x0:D.dates[state.idx], x1:D.dates[state.idx], y0:0, y1:1, line:{color:"#1d3f8f", width:2}}]
     }), {...CONFIG, displayModeBar:false});
   }
